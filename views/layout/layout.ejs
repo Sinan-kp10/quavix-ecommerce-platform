@@ -21,11 +21,30 @@
 <% } %>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dewyevzar/image/upload/v1775288191/Quavix_logo-1_zcvdg7.png">
+    <link rel="icon" type="image/png" href="/images/icons/icon-192x192.png?v=2">
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="/manifest.json?v=2">
+    <meta name="theme-color" content="#000000">
+    <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png?v=2">
 </head>
 <body>
     
     <%- body %>
 
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html> 

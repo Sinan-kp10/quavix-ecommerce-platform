@@ -40,10 +40,10 @@
                                     <div class="hamburger-menu">
                                         <i class="fa-solid fa-bars"></i>
                                     </div>
-                                    <div class="mobile-search">
-                                        <input type="text" placeholder="Search gadgets...">
-                                        <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                                    </div>
+                                    <form class="mobile-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
                                 </div>
 
                                 <aside class="mobile-sidebar">

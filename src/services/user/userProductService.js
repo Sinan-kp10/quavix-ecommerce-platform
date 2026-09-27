@@ -1,6 +1,7 @@
 import productModel from "../../models/productModal.js"
 import wishlistModel from "../../models/wishlistModel.js"
 import cartModel from "../../models/cartModel.js"
+import categoryModel from "../../models/category.js"
 
 
 
@@ -98,28 +99,34 @@ export const findProducts = async (search) => {
     let attributeFilter = [];
 
     words.forEach(word => {
-
-        if (!isNaN(word)) {
-            priceFilter = Number(word);
-        }
-        else if (word.includes("gb")) {
+        if (word.includes("gb")) {
             attributeFilter.push(word);
-        }
-
-        else {
+        } else {
             nameFilter.push(word);
         }
-
     });
 
     let mongoQuery = { isDeleted: false };
 
 
     if (nameFilter.length > 0) {
-        mongoQuery.name = {
-            $regex: nameFilter.join("|"),
-            $options: "i"
-        };
+        const regexPattern = nameFilter.join("|");
+        const matchingCategories = await categoryModel.find({
+            name: { $regex: regexPattern, $options: "i" }
+        });
+        const categoryIds = matchingCategories.map(c => c._id);
+
+        if (categoryIds.length > 0) {
+            mongoQuery.$or = [
+                { name: { $regex: regexPattern, $options: "i" } },
+                { category: { $in: categoryIds } }
+            ];
+        } else {
+            mongoQuery.name = {
+                $regex: regexPattern,
+                $options: "i"
+            };
+        }
     }
 
     let products = await productModel.find(mongoQuery).populate("category");

@@ -201,6 +201,41 @@ export const searchProducts = async (req, res) => {
     }
 }
 
+export const getSearchSuggestions = async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q || q.trim() === "") {
+            return res.json({ success: true, suggestions: [] });
+        }
+
+        const { products } = await findProducts(q);
+
+        // Map to lightweight suggestions object
+        const suggestions = products.slice(0, 5).map(product => {
+            const activeVariant = product.variants.find(v => v.status === "Active") || product.variants[0];
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
+            
+            let price = activeVariant ? activeVariant.price : 0;
+            if (offer > 0 && price > 0) {
+                price = Math.round(price - (price * offer / 100));
+            }
+
+            return {
+                _id: product._id,
+                name: product.name,
+                slug: product.slug,
+                image: activeVariant?.images?.primary?.url || "",
+                price: price
+            };
+        });
+
+        res.json({ success: true, suggestions });
+    } catch (err) {
+        console.error("Search suggestion error:", err);
+        res.status(500).json({ success: false, suggestions: [] });
+    }
+}
+
 export const loadProductDetials = async (req, res) => {
     try {
         const { slug } = req.params;
